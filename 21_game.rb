@@ -160,6 +160,22 @@ module Displayable
   end
 end
 
+module Hand
+  def total(hand)
+    puts hand
+    value = 0
+    aces = hand.each_with_object([]) do |card, arr|
+      arr << 'Ace' if card.rank == 'Ace'
+      value += Deck::CARD_RANKS_AND_VALUES.fetch(card.rank)
+    end
+    aces.each { value += Deck::ACE_VALUE_ALTERNATE if value <= Deck::ACE_VALUE_LIMIT }
+    value
+  end
+
+  def busted?
+  end
+end
+
 class Participant
   include Displayable
   include Questionable
@@ -177,13 +193,6 @@ class Participant
 
   def show_hand
      display_hand(name, hand)
-  end
-
-  def busted?
-  end
-
-  def total
-    # definitely looks like we need to know about "cards" to produce some total
   end
 end
 
@@ -261,6 +270,7 @@ end
 class Game
   include Displayable
   include Questionable
+  include Hand
 
   WINS_LIMIT = 5
   BUST_VALUE = 21
@@ -315,6 +325,7 @@ class Game
 
   def display_initial_cards
     dealer.show_hand
+    puts total(dealer.hand)
     player.show_hand
   end
 
