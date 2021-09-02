@@ -93,8 +93,12 @@ module Displayable
     blank_line
   end
 
-  def display_hand(name, hand)
-    puts "#{name} has #{joinor(hand.dup)}"
+  def display_initial_hand(name, hand)
+    puts "#{name} has #{hand[0]} and an unknown card."
+  end
+
+  def display_hand(name, hand, total)
+    puts "#{name} has #{joinor(hand.dup)}, for a total of #{total}."
   end
 
   def display_result_and_scores
@@ -116,11 +120,8 @@ module Displayable
   end
 
   def display_scores
-    puts <<~SCORES
-    Remember, the first to win #{Game::WINS_LIMIT} games is the Champion!
-    #{player.name} has #{player.score} #{player.point_string}.
-    #{dealer.name} has #{dealer.score} #{dealer.point_string}.
-    SCORES
+    puts "Score: #{player.name} = #{player.score}, #{dealer.name} = #{dealer.score}."
+    blank_line
   end
 
 
@@ -162,7 +163,6 @@ end
 
 module Hand
   def total(hand)
-    puts hand
     value = 0
     aces = hand.each_with_object([]) do |card, arr|
       arr << 'Ace' if card.rank == 'Ace'
@@ -179,20 +179,21 @@ end
 class Participant
   include Displayable
   include Questionable
+  include Hand
 
   DEALER_NAME = "Alice"
 
   attr_reader :name
-  attr_accessor :hand
-
-  # what goes in here? all the redundant behaviors from Player and Dealer?
+  attr_accessor :hand, :score
 
   def initialize
     @hand = []
+    @score = 0
   end
 
   def show_hand
-     display_hand(name, hand)
+    total = total(hand)
+    display_hand(name, hand, total)
   end
 end
 
@@ -215,6 +216,10 @@ class Dealer < Participant
     super
   end
 
+  def show_initial_hand
+    display_initial_hand(name, hand)
+  end
+
   def hit
   end
 
@@ -233,6 +238,9 @@ class Deck
     '2' => 2, '3' => 3, '4' => 4, '5' => 5, '6' => 6, '7' => 7, '8' => 8,
     '9' => 9, '10' => 10, 'Jack' => 10, 'Queen' => 10, 'King' => 10, 'Ace' => 1
   }
+
+  ACE_VALUE_ALTERNATE = 10
+  ACE_VALUE_LIMIT = 11
 
   attr_accessor :cards
 
@@ -275,8 +283,6 @@ class Game
   WINS_LIMIT = 5
   BUST_VALUE = 21
   DEALER_STICK_VALUE = 17
-  ACE_VALUE_ALTERNATE = 10
-  ACE_VALUE_LIMIT = 11
 
   attr_reader :player, :dealer
   attr_accessor :deck, :champion
@@ -305,6 +311,7 @@ class Game
 
   def main_game
     loop do
+      display_scores
       deal_cards
       display_initial_cards
       player_turn
@@ -324,10 +331,17 @@ class Game
   end
 
   def display_initial_cards
-    dealer.show_hand
-    puts total(dealer.hand)
+    dealer.show_initial_hand
     player.show_hand
   end
+
+#   => You are playing Twenty One! First to win 5 games is the champion!
+# => Score: Player = 0, Dealer = 0.
+# => --------------
+# => I have: 9 ♣ and an unknown card.
+# => You have: 4 ♦ and 3 ♦, for a total of 7.
+# => Would you like to (h)it or (s)tay?
+
 
   def player_turn
     loop do
