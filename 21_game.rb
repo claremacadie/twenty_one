@@ -62,22 +62,6 @@ module Questionable
     end
     answer
   end
-
-  def ask_integer_choice(question, options)
-    answer = nil
-    loop do
-      puts question
-      answer = gets.chomp.strip
-      break if options.include?(answer.to_i) && integer?(answer)
-      puts "Sorry, that's not a valid choice, must be an integer."
-      blank_line
-    end
-    answer.to_i
-  end
-
-  def integer?(str)
-    str == str.to_i.to_s
-  end
 end
 
 module Displayable
@@ -95,6 +79,14 @@ module Displayable
 
   def display_initial_hand(name, hand)
     puts "#{name} has #{hand[0]} and an unknown card."
+  end
+
+  def display_hit
+    puts "#{name} chose to hit."
+  end
+
+  def display_stay
+    puts "#{name} chose to stay."
   end
 
   def display_hand(name, hand, total)
@@ -193,11 +185,11 @@ class Participant
 
   def hit
     hand << deck.deal_card
-    puts "#{name} chose to hit."
+    display_hit
   end
 
   def stay
-    puts "#{name} chose to stay."
+    display_stay
   end
 
   def increment_score
