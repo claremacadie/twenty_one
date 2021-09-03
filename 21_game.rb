@@ -124,6 +124,9 @@ module Displayable
     blank_line
   end
 
+  def display_busted(participant)
+    puts "Oh dear, #{player.name} has gone bust!"
+  end
 
   def display_champion
     blank_line
@@ -172,9 +175,9 @@ module Hand
     value
   end
 
-  # def busted?(hand)
-  #   total(hand) > BUST_VALUE
-  # end
+  def busted?(hand)
+    total(hand) > Game::BUST_VALUE
+  end
 end
 
 class Participant
@@ -321,8 +324,7 @@ class Game
       deal_cards
       display_initial_cards
       player_turn
-      dealer_turn
-      display_initial_cards
+      dealer_turn if !busted?(player.hand)
       display_result
       deck.reset
       break unless continue_match_message
@@ -343,20 +345,28 @@ class Game
       choice = ask_closed_question(
         "Would you like to (h)it or (s)tay?", ['h', 's']
       )
-      break if choice == 's'
+      if choice == 's'
+        player.stay
+        return
+      end
       player.hit
       player.show_hand
+      break if busted?(player.hand)
     end
-    player.stay
+    display_busted(player)
   end
 
   def dealer_turn
-    loop do
-      break if total(dealer.hand) >= DEALER_STAY_VALUE
+    dealer.show_hand
+    while total(dealer.hand) < DEALER_STAY_VALUE
       dealer.hit
       dealer.show_hand
     end
-    dealer.stay
+    if busted?(dealer.hand)
+      display_busted(dealer)
+    else
+      dealer.stay
+    end
   end
 
   def display_result
