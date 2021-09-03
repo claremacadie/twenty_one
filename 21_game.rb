@@ -9,6 +9,14 @@ module Formattable
     puts
   end
 
+  def single_line
+    puts "------------"
+  end
+
+  def double_line
+    puts "============"
+  end
+
   def joinor(arr, delimiter=', ', word='and')
     case arr.size
     when 0 then ''
@@ -73,12 +81,26 @@ module Displayable
     Hi #{player.name}. Welcome to Twenty-One!
     You are playing against #{dealer.name}.
     The first to win #{Game::WINS_LIMIT} games is the Champion!
+    Press enter to continue.
     WELCOME
     blank_line
+    gets
+  end
+
+  def display_header
+    clear
+    puts "You are playing Twenty One! " \
+      "Remember, first to #{Game::WINS_LIMIT} games is the Champion!"
+    display_scores
+    single_line
   end
 
   def display_initial_hand
     puts "#{name} has #{hand[0]} and an unknown card."
+  end
+
+  def display_turn
+    puts "#{name}'s turn..."
   end
 
   def display_hit
@@ -86,7 +108,8 @@ module Displayable
   end
 
   def display_stay
-    puts "#{name} chose to stay."
+    puts "#{name} stayed at #{total}."
+    single_line
   end
 
   def display_hand
@@ -94,27 +117,28 @@ module Displayable
   end
 
   def display_tie
+    double_line
     puts "It's a tie!"
   end
 
   def display_winner(participant)
+    double_line
     puts "#{participant.name} won!"
+    display_scores
   end
 
   def display_scores
     puts "Score: #{player.name} = #{player.score}, " \
       "#{dealer.name} = #{dealer.score}."
-    blank_line
   end
 
   def display_busted
     puts "Oh dear, #{name} has gone bust!"
+    single_line
   end
 
   def display_champion
-    blank_line
     puts "#{champion.name} won #{Game::WINS_LIMIT} games and is the CHAMPION!"
-    blank_line
   end
 
   def play_again?
@@ -122,7 +146,8 @@ module Displayable
   end
 
   def continue_match_message
-    blank_line
+    double_line
+    puts "Rmember, first to #{Game::WINS_LIMIT} is the champion."
     answer = ask_closed_question(
       "Press enter to continue the match (or 'q' to quit this match).",
       ["", "q"]
@@ -246,6 +271,7 @@ class Dealer < Participant
   end
 
   def turn
+    display_turn
     show_hand
     while total < DEALER_STAY_VALUE
       hit
@@ -332,7 +358,7 @@ class Game
     display_welcome_message
     loop do
       main_game
-      display_champion if champion
+      end_match if champion
       break unless play_again?
       reset_match
       display_rematch_message
@@ -344,7 +370,7 @@ class Game
 
   def main_game
     loop do
-      display_scores
+      display_header
       deal_cards
       show_initial_hands
       take_turns
@@ -371,8 +397,8 @@ class Game
 
   def determine_result
     self.winner = determine_winner
-    declare_winner
     update_score if winner
+    declare_winner
   end
 
   def determine_winner
@@ -384,6 +410,8 @@ class Game
   end
 
   def declare_winner
+    dealer.show_hand
+    player.show_hand
     case winner
     when nil then display_tie
     else display_winner(winner)
@@ -400,6 +428,12 @@ class Game
                     elsif dealer.score == WINS_LIMIT
                       dealer
                     end
+  end
+
+  def end_match
+    dealer.show_hand
+    player.show_hand
+    display_champion
   end
 
   def reset_game
