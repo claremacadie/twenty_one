@@ -101,22 +101,12 @@ module Displayable
     puts "#{name} has #{joinor(hand.dup)}, for a total of #{total}."
   end
 
-  def display_result_and_scores
-    display_result
-    display_scores
+  def display_tie
+    puts "It's a tie!"
   end
 
-  def display_result
-    clear_screen_and_display_board
-
-    case board.winning_marker
-    when human.marker
-      puts "#{human.name} won!"
-    when computer.marker
-      puts "#{computer.name} won!"
-    else
-      puts "It's a tie!"
-    end
+  def display_winner(participant)
+    puts "#{participant.name} won!"
   end
 
   def display_scores
@@ -125,7 +115,7 @@ module Displayable
   end
 
   def display_busted(participant)
-    puts "Oh dear, #{player.name} has gone bust!"
+    puts "Oh dear, #{participant.name} has gone bust!"
   end
 
   def display_champion
@@ -294,12 +284,13 @@ class Game
   DEALER_STAY_VALUE = 17
 
   attr_reader :player, :dealer
-  attr_accessor :deck, :champion
+  attr_accessor :deck, :winner, :champion
 
   def initialize
     @deck = Deck.new
     @player = Player.new(deck)
     @dealer = Dealer.new(deck)
+    @winner = nil
     @champion = nil
   end
 
@@ -325,7 +316,8 @@ class Game
       display_initial_cards
       player_turn
       dealer_turn if !busted?(player.hand)
-      display_result
+      determine_result
+      gets
       deck.reset
       break unless continue_match_message
     end
@@ -369,8 +361,26 @@ class Game
     end
   end
 
-  def display_result
+  def determine_result
+    self.winner = determine_winner
+    declare_winner
+  end
 
+  def determine_winner
+    if busted?(player.hand) then dealer
+    elsif busted?(dealer.hand) then player
+    elsif total(player.hand) > total(dealer.hand) then player
+    elsif total(dealer.hand) > total(player.hand) then dealer
+    else
+      'tie'
+    end
+  end
+
+  def declare_winner
+    case winner
+    when 'tie' then display_tie
+    else display_winner(winner)
+    end
   end
 
   def display_champion
