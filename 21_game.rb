@@ -185,19 +185,12 @@ class Participant
     @bust = false
   end
 
+  def show_initial_hand
+    display_initial_hand
+  end
+
   def show_hand
     display_hand
-  end
-
-  def hit
-    hand << deck.deal_card
-    display_hit
-    show_hand
-    self.bust = true if busted?
-  end
-
-  def stay
-    display_stay
   end
 
   def increment_score
@@ -211,6 +204,19 @@ class Participant
 
   def reset_score
     self.score = 0
+  end
+
+  private
+
+  def hit
+    hand << deck.deal_card
+    display_hit
+    show_hand
+    self.bust = true if busted?
+  end
+
+  def stay
+    display_stay
   end
 end
 
@@ -237,10 +243,6 @@ class Dealer < Participant
   def initialize(deck)
     @name = DEALER_NAME
     super
-  end
-
-  def show_initial_hand
-    display_initial_hand
   end
 
   def turn
