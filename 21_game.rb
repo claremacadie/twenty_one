@@ -295,6 +295,7 @@ class Game
   attr_accessor :deck, :winner, :champion
 
   def initialize
+    clear
     @deck = Deck.new
     @player = Player.new(deck)
     @dealer = Dealer.new(deck)
@@ -303,7 +304,6 @@ class Game
   end
 
   def start
-    clear
     display_welcome_message
     loop do
       main_game
