@@ -172,8 +172,9 @@ module Hand
     value
   end
 
-  def busted?
-  end
+  # def busted?(hand)
+  #   total(hand) > BUST_VALUE
+  # end
 end
 
 class Participant
@@ -183,47 +184,45 @@ class Participant
 
   DEALER_NAME = "Alice"
 
-  attr_reader :name
+  attr_reader :name, :deck
   attr_accessor :hand, :score
 
-  def initialize
+  def initialize(deck)
     @hand = []
     @score = 0
+    @deck = deck
   end
 
   def show_hand
     total = total(hand)
     display_hand(name, hand, total)
   end
-end
-
-class Player < Participant
-  def initialize
-    @name = ask_open_question("What's your name?", DEALER_NAME)
-    super
-  end
 
   def hit
+    hand << deck.deal_card
+    puts "#{name} chose to hit."
   end
 
   def stay
+    puts "#{name} chose to stay."
+  end
+end
+
+class Player < Participant
+  def initialize(deck)
+    @name = ask_open_question("What's your name?", DEALER_NAME)
+    super
   end
 end
 
 class Dealer < Participant
-  def initialize
+  def initialize(deck)
     @name = DEALER_NAME
     super
   end
 
   def show_initial_hand
     display_initial_hand(name, hand)
-  end
-
-  def hit
-  end
-
-  def stay
   end
 end
 
@@ -248,8 +247,15 @@ class Deck
     reset
   end
 
-  def deal(hand)
-    hand << cards.pop
+  def initial_deal(player, dealer)
+    2.times do
+      player.hand << deal_card
+      dealer.hand << deal_card
+    end
+  end
+
+  def deal_card
+    cards.pop
   end
 
   def reset
@@ -282,15 +288,15 @@ class Game
 
   WINS_LIMIT = 5
   BUST_VALUE = 21
-  DEALER_STICK_VALUE = 17
+  DEALER_STAY_VALUE = 17
 
   attr_reader :player, :dealer
   attr_accessor :deck, :champion
 
   def initialize
-    @player = Player.new
-    @dealer = Dealer.new
     @deck = Deck.new
+    @player = Player.new(deck)
+    @dealer = Dealer.new(deck)
     @champion = nil
   end
 
@@ -324,10 +330,7 @@ class Game
   end
 
   def deal_cards
-    2.times do
-      deck.deal(dealer.hand)
-      deck.deal(player.hand)
-    end
+    deck.initial_deal(player, dealer)
   end
 
   def display_initial_cards
@@ -335,33 +338,25 @@ class Game
     player.show_hand
   end
 
-#   => You are playing Twenty One! First to win 5 games is the champion!
-# => Score: Player = 0, Dealer = 0.
-# => --------------
-# => I have: 9 ♣ and an unknown card.
-# => You have: 4 ♦ and 3 ♦, for a total of 7.
-# => Would you like to (h)it or (s)tay?
-
-
   def player_turn
     loop do
       choice = ask_closed_question(
         "Would you like to (h)it or (s)tay?", ['h', 's']
       )
       break if choice == 's'
-      deck.deal(player.hand)
+      player.hit
       player.show_hand
     end
-    puts "#{player.name} chose to stay."
+    player.stay
   end
 
   def dealer_turn
     loop do
-      deck.deal(dealer.hand)
+      break if total(dealer.hand) >= DEALER_STAY_VALUE
+      dealer.hit
       dealer.show_hand
-      break
     end
-    puts "#{dealer.name} chose to stay."
+    dealer.stay
   end
 
   def display_result
