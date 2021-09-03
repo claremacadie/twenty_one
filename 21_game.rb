@@ -90,7 +90,7 @@ module Displayable
   end
 
   def display_hand
-    puts "#{name} has #{joinor(hand.dup)}, for a total of #{total(hand)}."
+    puts "#{name} has #{joinor(hand.dup)}, for a total of #{total}."
   end
 
   def display_tie
@@ -148,7 +148,7 @@ module Displayable
 end
 
 module Hand
-  def total(hand)
+  def total
     value = 0
     aces = hand.each_with_object([]) do |card, arr|
       arr << 'Ace' if card.rank == 'Ace'
@@ -159,10 +159,6 @@ module Hand
     end
     value
   end
-
-  def busted?(hand)
-    total(hand) > Game::BUST_VALUE
-  end
 end
 
 class Participant
@@ -172,6 +168,7 @@ class Participant
 
   DEALER_NAME = "Alice"
   DEALER_STAY_VALUE = 17
+  BUST_VALUE = 21
 
   attr_reader :name, :deck
   attr_accessor :hand, :score
@@ -196,8 +193,8 @@ class Participant
     display_stay
   end
 
-  def busted
-    display_busted
+  def busted?
+    total > BUST_VALUE
   end
 
   def increment_score
@@ -226,9 +223,9 @@ class Player < Participant
       )
       return stay if choice == 's'
       hit
-      break if busted?(hand)
+      break if busted?
     end
-    busted
+    display_busted
   end
 end
 
@@ -244,10 +241,10 @@ class Dealer < Participant
 
   def turn
     show_hand
-    while total(hand) < DEALER_STAY_VALUE
+    while total < DEALER_STAY_VALUE
       hit
     end
-    busted?(hand) ? busted : stay
+    busted? ? display_busted : stay
   end
 end
 
@@ -312,7 +309,6 @@ class Game
   include Hand
 
   WINS_LIMIT = 5
-  BUST_VALUE = 21
 
   attr_reader :player, :dealer
   attr_accessor :deck, :winner, :champion
@@ -364,7 +360,7 @@ class Game
 
   def take_turns
     player.turn
-    dealer.turn if !busted?(player.hand)
+    dealer.turn if !player.busted?
   end
 
   def determine_result
@@ -374,10 +370,10 @@ class Game
   end
 
   def determine_winner
-    if busted?(player.hand) then dealer
-    elsif busted?(dealer.hand) then player
-    elsif total(player.hand) > total(dealer.hand) then player
-    elsif total(dealer.hand) > total(player.hand) then dealer
+    if player.busted? then dealer
+    elsif dealer.busted? then player
+    elsif player.total > dealer.total then player
+    elsif dealer.total > player.total then dealer
     end
   end
 
