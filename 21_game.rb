@@ -148,6 +148,8 @@ module Displayable
 end
 
 module Hand
+  BUST_VALUE = 21
+
   def total
     value = 0
     aces = hand.each_with_object([]) do |card, arr|
@@ -159,6 +161,10 @@ module Hand
     end
     value
   end
+
+  def busted?
+    total > BUST_VALUE
+  end
 end
 
 class Participant
@@ -168,15 +174,15 @@ class Participant
 
   DEALER_NAME = "Alice"
   DEALER_STAY_VALUE = 17
-  BUST_VALUE = 21
 
   attr_reader :name, :deck
-  attr_accessor :hand, :score
+  attr_accessor :hand, :score, :bust
 
   def initialize(deck)
     @hand = []
     @score = 0
     @deck = deck
+    @bust = false
   end
 
   def show_hand
@@ -187,14 +193,11 @@ class Participant
     hand << deck.deal_card
     display_hit
     show_hand
+    self.bust = true if busted?
   end
 
   def stay
     display_stay
-  end
-
-  def busted?
-    total > BUST_VALUE
   end
 
   def increment_score
@@ -203,6 +206,7 @@ class Participant
 
   def reset_hand
     self.hand = []
+    self.bust = false
   end
 
   def reset_score
@@ -223,7 +227,7 @@ class Player < Participant
       )
       return stay if choice == 's'
       hit
-      break if busted?
+      break if bust
     end
     display_busted
   end
@@ -244,7 +248,7 @@ class Dealer < Participant
     while total < DEALER_STAY_VALUE
       hit
     end
-    busted? ? display_busted : stay
+    bust ? display_busted : stay
   end
 end
 
@@ -370,8 +374,8 @@ class Game
   end
 
   def determine_winner
-    if player.busted? then dealer
-    elsif dealer.busted? then player
+    if player.bust then dealer
+    elsif dealer.bust then player
     elsif player.total > dealer.total then player
     elsif dealer.total > player.total then dealer
     end
