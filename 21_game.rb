@@ -120,7 +120,7 @@ module Displayable
 
   def display_champion
     blank_line
-    puts "#{champion} won #{Game::WINS_LIMIT} games and is the CHAMPION!"
+    puts "#{champion.name} won #{Game::WINS_LIMIT} games and is the CHAMPION!"
     blank_line
   end
 
@@ -206,6 +206,10 @@ class Participant
 
   def reset_hand
     self.hand = []
+  end
+
+  def reset_score
+    self.score = 0
   end
 end
 
@@ -326,6 +330,7 @@ class Game
       dealer_turn if !busted?(player.hand)
       determine_result
       update_score if winner
+      break if match_champion
       reset_game
       break unless continue_match_message
     end
@@ -393,20 +398,26 @@ class Game
     winner.increment_score
   end
 
+  def match_champion
+    self.champion = if player.score == WINS_LIMIT
+                      player
+                    elsif dealer.score == WINS_LIMIT
+                      dealer
+                    end
+  end
+
   def reset_game
     deck.reset
     player.reset_hand
     dealer.reset_hand
-    winner = nil
-  end
-
-  def display_champion
-  end
-
-  def play_again?
+    self.winner = nil
   end
 
   def reset_match
+    reset_game
+    player.reset_score
+    dealer.reset_score
+    self.champion = nil
   end
 end
 
