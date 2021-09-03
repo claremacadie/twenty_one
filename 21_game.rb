@@ -102,7 +102,8 @@ module Displayable
   end
 
   def display_scores
-    puts "Score: #{player.name} = #{player.score}, #{dealer.name} = #{dealer.score}."
+    puts "Score: #{player.name} = #{player.score}, " \
+      "#{dealer.name} = #{dealer.score}."
     blank_line
   end
 
@@ -153,7 +154,9 @@ module Hand
       arr << 'Ace' if card.rank == 'Ace'
       value += Deck::CARD_RANKS_AND_VALUES.fetch(card.rank)
     end
-    aces.each { value += Deck::ACE_VALUE_ALTERNATE if value <= Deck::ACE_VALUE_LIMIT }
+    aces.each do
+      value += Deck::ACE_VALUE_ALTERNATE if value <= Deck::ACE_VALUE_LIMIT
+    end
     value
   end
 
@@ -256,11 +259,11 @@ class Deck
 
   def reset
     self.cards = CARD_SUITS.each_with_object([]) do |suit, arr|
-    CARD_RANKS_AND_VALUES.keys.each do |rank|
-      arr << Card.new(rank, suit)
+      CARD_RANKS_AND_VALUES.keys.each do |rank|
+        arr << Card.new(rank, suit)
+      end
     end
-  end
-  cards.shuffle!
+    cards.shuffle!
   end
 end
 
