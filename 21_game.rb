@@ -319,11 +319,9 @@ class Game
     loop do
       display_scores
       deal_cards
-      display_initial_cards
       player_turn
       dealer_turn if !busted?(player.hand)
       determine_result
-      update_score if winner
       break if match_champion
       reset_game
       break unless continue_match_message
@@ -340,6 +338,7 @@ class Game
   end
 
   def player_turn
+    display_initial_cards
     loop do
       choice = ask_closed_question(
         "Would you like to (h)it or (s)tay?", ['h', 's']
@@ -371,6 +370,7 @@ class Game
   def determine_result
     self.winner = determine_winner
     declare_winner
+    update_score if winner
   end
 
   def determine_winner
