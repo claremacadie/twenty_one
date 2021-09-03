@@ -199,6 +199,14 @@ class Participant
   def stay
     puts "#{name} chose to stay."
   end
+
+  def increment_score
+    self.score += 1
+  end
+
+  def reset_hand
+    self.hand = []
+  end
 end
 
 class Player < Participant
@@ -317,8 +325,8 @@ class Game
       player_turn
       dealer_turn if !busted?(player.hand)
       determine_result
-      gets
-      deck.reset
+      update_score if winner
+      reset_game
       break unless continue_match_message
     end
   end
@@ -371,16 +379,25 @@ class Game
     elsif busted?(dealer.hand) then player
     elsif total(player.hand) > total(dealer.hand) then player
     elsif total(dealer.hand) > total(player.hand) then dealer
-    else
-      'tie'
     end
   end
 
   def declare_winner
     case winner
-    when 'tie' then display_tie
+    when nil then display_tie
     else display_winner(winner)
     end
+  end
+
+  def update_score
+    winner.increment_score
+  end
+
+  def reset_game
+    deck.reset
+    player.reset_hand
+    dealer.reset_hand
+    winner = nil
   end
 
   def display_champion
