@@ -171,6 +171,7 @@ class Participant
   include Hand
 
   DEALER_NAME = "Alice"
+  DEALER_STAY_VALUE = 17
 
   attr_reader :name, :deck
   attr_accessor :hand, :score
@@ -217,6 +218,18 @@ class Player < Participant
     @name = ask_open_question("What's your name?", DEALER_NAME)
     super
   end
+
+  def turn
+    loop do
+      choice = ask_closed_question(
+        "Would you like to (h)it or (s)tay?", ['h', 's']
+      )
+      return stay if choice == 's'
+      hit
+      break if busted?(hand)
+    end
+    busted
+  end
 end
 
 class Dealer < Participant
@@ -227,6 +240,14 @@ class Dealer < Participant
 
   def show_initial_hand
     display_initial_hand
+  end
+
+  def turn
+    show_hand
+    while total(hand) < DEALER_STAY_VALUE
+      hit
+    end
+    busted?(hand) ? busted : stay
   end
 end
 
@@ -292,7 +313,6 @@ class Game
 
   WINS_LIMIT = 5
   BUST_VALUE = 21
-  DEALER_STAY_VALUE = 17
 
   attr_reader :player, :dealer
   attr_accessor :deck, :winner, :champion
@@ -324,8 +344,8 @@ class Game
     loop do
       display_scores
       deal_cards
-      player_turn
-      dealer_turn if !busted?(player.hand)
+      show_initial_hands
+      take_turns
       determine_result
       break if match_champion
       reset_game
@@ -337,30 +357,14 @@ class Game
     deck.initial_deal(player, dealer)
   end
 
-  def display_initial_cards
+  def show_initial_hands
     dealer.show_initial_hand
     player.show_hand
   end
 
-  def player_turn
-    display_initial_cards
-    loop do
-      choice = ask_closed_question(
-        "Would you like to (h)it or (s)tay?", ['h', 's']
-      )
-      return player.stay if choice == 's'
-      player.hit
-      break if busted?(player.hand)
-    end
-    player.busted
-  end
-
-  def dealer_turn
-    dealer.show_hand
-    while total(dealer.hand) < DEALER_STAY_VALUE
-      dealer.hit
-    end
-    busted?(dealer.hand) ? dealer.busted : dealer.stay
+  def take_turns
+    player.turn
+    dealer.turn if !busted?(player.hand)
   end
 
   def determine_result
