@@ -77,7 +77,7 @@ module Displayable
     blank_line
   end
 
-  def display_initial_hand(name, hand)
+  def display_initial_hand
     puts "#{name} has #{hand[0]} and an unknown card."
   end
 
@@ -89,8 +89,8 @@ module Displayable
     puts "#{name} chose to stay."
   end
 
-  def display_hand(name, hand, total)
-    puts "#{name} has #{joinor(hand.dup)}, for a total of #{total}."
+  def display_hand
+    puts "#{name} has #{joinor(hand.dup)}, for a total of #{total(hand)}."
   end
 
   def display_tie
@@ -179,8 +179,7 @@ class Participant
   end
 
   def show_hand
-    total = total(hand)
-    display_hand(name, hand, total)
+    display_hand
   end
 
   def hit
@@ -219,7 +218,7 @@ class Dealer < Participant
   end
 
   def show_initial_hand
-    display_initial_hand(name, hand)
+    display_initial_hand
   end
 end
 
