@@ -354,8 +354,6 @@ class Game
     @deck = Deck.new
     @player = Player.new(deck)
     @dealer = Dealer.new(deck)
-    @winner = nil
-    @champion = nil
   end
 
   def start
