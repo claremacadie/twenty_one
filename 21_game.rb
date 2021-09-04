@@ -138,6 +138,7 @@ module Displayable
   end
 
   def display_champion
+    double_line
     puts "#{champion.name} won #{Game::WINS_LIMIT} games and is the CHAMPION!"
   end
 
@@ -437,8 +438,8 @@ class Game
   end
 
   def end_match
-    dealer.show_hand
-    player.show_hand
+    # dealer.show_hand
+    # player.show_hand
     display_champion
   end
 
