@@ -30,8 +30,6 @@ module Formattable
 end
 
 module Questionable
-  # include Formattable
-
   YES_NO_OPTIONS = %w(y yes n no)
 
   def ask_yes_no_question(question)
@@ -75,7 +73,7 @@ end
 module Displayable
   include Formattable
 
-  def display_welcome_message
+  def display_welcome
     clear
     puts <<~WELCOME
     Hi #{player.name}. Welcome to Twenty-One!
@@ -142,11 +140,11 @@ module Displayable
     puts "#{champion.name} won #{Game::WINS_LIMIT} games and is the CHAMPION!"
   end
 
-  def play_again?
+  def display_play_again?
     ask_yes_no_question("Would you like to play another match? (y/n)")
   end
 
-  def continue_match_message
+  def display_continue_match?
     double_line
     puts "Rmember, first to #{Game::WINS_LIMIT} is the champion."
     answer = ask_closed_question(
@@ -157,7 +155,7 @@ module Displayable
     answer.empty? ? true : false
   end
 
-  def display_rematch_message
+  def display_rematch
     clear
     puts <<~REMATCH
     Hi #{player.name}. Welcome back to Twenty-One!
@@ -167,7 +165,7 @@ module Displayable
     blank_line
   end
 
-  def display_goodbye_message
+  def display_goodbye
     puts "Thank you for playing Twenty-One! Goodbye!"
     blank_line
   end
@@ -344,8 +342,6 @@ end
 
 class Game
   include Displayable
-  # include Questionable
-  # include Hand
 
   WINS_LIMIT = 5
 
@@ -362,15 +358,15 @@ class Game
   end
 
   def start
-    display_welcome_message
+    display_welcome
     loop do
       main_game
       display_champion if champion
-      break unless player.play_again?
+      break unless player.display_play_again?
       reset_match
-      display_rematch_message
+      display_rematch
     end
-    display_goodbye_message
+    display_goodbye
   end
 
   private
@@ -384,7 +380,7 @@ class Game
       determine_result
       break if match_champion
       reset_game
-      break unless player.continue_match_message
+      break unless player.display_continue_match?
     end
   end
 
