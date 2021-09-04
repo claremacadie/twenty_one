@@ -30,7 +30,7 @@ module Formattable
 end
 
 module Questionable
-  include Formattable
+  # include Formattable
 
   YES_NO_OPTIONS = %w(y yes n no)
 
@@ -344,8 +344,8 @@ end
 
 class Game
   include Displayable
-  include Questionable
-  include Hand
+  # include Questionable
+  # include Hand
 
   WINS_LIMIT = 5
 
@@ -365,8 +365,8 @@ class Game
     display_welcome_message
     loop do
       main_game
-      end_match if champion
-      break unless play_again?
+      display_champion if champion
+      break unless player.play_again?
       reset_match
       display_rematch_message
     end
@@ -384,7 +384,7 @@ class Game
       determine_result
       break if match_champion
       reset_game
-      break unless continue_match_message
+      break unless player.continue_match_message
     end
   end
 
@@ -435,12 +435,6 @@ class Game
                     elsif dealer.score == WINS_LIMIT
                       dealer
                     end
-  end
-
-  def end_match
-    # dealer.show_hand
-    # player.show_hand
-    display_champion
   end
 
   def reset_game
