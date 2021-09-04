@@ -254,9 +254,9 @@ class Player < Participant
   def turn
     loop do
       choice = ask_closed_question(
-        "Would you like to (h)it or (s)tay?", ['h', 's']
+        "Would you like to (h)it or (s)tay?", ['h', 'hit', 's', 'stay']
       )
-      return stay if choice == 's'
+      return stay if choice[0] == 's'
       hit
       break if bust
     end
