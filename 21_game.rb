@@ -72,6 +72,7 @@ end
 
 module Displayable
   include Formattable
+  include Questionable
 
   def display_welcome
     clear
@@ -362,7 +363,7 @@ class Game
     loop do
       main_game
       display_champion if champion
-      break unless player.display_play_again?
+      break unless display_play_again?
       reset_match
       display_rematch
     end
@@ -380,7 +381,7 @@ class Game
       determine_result
       break if match_champion
       reset_game
-      break unless player.display_continue_match?
+      break unless display_continue_match?
     end
   end
 
