@@ -188,7 +188,7 @@ module Hand
 
   def total_with_aces_as_one
     hand.reduce(0) do |sum, card|
-      sum += CARD_RANKS_AND_VALUES.fetch(card.rank)
+      sum + CARD_RANKS_AND_VALUES.fetch(card.rank)
     end
   end
 
