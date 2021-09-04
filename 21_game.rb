@@ -173,6 +173,10 @@ module Displayable
 end
 
 module Hand
+  CARD_RANKS_AND_VALUES = {
+    '2' => 2, '3' => 3, '4' => 4, '5' => 5, '6' => 6, '7' => 7, '8' => 8,
+    '9' => 9, '10' => 10, 'Jack' => 10, 'Queen' => 10, 'King' => 10, 'Ace' => 1
+  }
   BUST_VALUE = 21
   ACE_VALUE_ALTERNATE = 10
   ACE_VALUE_LIMIT = 11
@@ -184,7 +188,7 @@ module Hand
 
   def total_with_aces_as_one
     hand.reduce(0) do |sum, card|
-      sum += Deck::CARD_RANKS_AND_VALUES.fetch(card.rank)
+      sum += CARD_RANKS_AND_VALUES.fetch(card.rank)
     end
   end
 
@@ -295,10 +299,7 @@ class Deck
   SPADE = "\u2660"
 
   CARD_SUITS = [HEART, CLUB, DIAMOND, SPADE]
-  CARD_RANKS_AND_VALUES = {
-    '2' => 2, '3' => 3, '4' => 4, '5' => 5, '6' => 6, '7' => 7, '8' => 8,
-    '9' => 9, '10' => 10, 'Jack' => 10, 'Queen' => 10, 'King' => 10, 'Ace' => 1
-  }
+  CARD_RANKS = ('2'..'10').to_a + ['Jack', 'Queen', 'King', 'Ace']
 
   attr_accessor :cards
 
@@ -319,7 +320,7 @@ class Deck
 
   def reset
     self.cards = CARD_SUITS.each_with_object([]) do |suit, arr|
-      CARD_RANKS_AND_VALUES.keys.each do |rank|
+      CARD_RANKS.each do |rank|
         arr << Card.new(rank, suit)
       end
     end
