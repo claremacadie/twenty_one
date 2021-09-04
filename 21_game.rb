@@ -204,6 +204,7 @@ class Participant
   attr_accessor :hand, :score, :bust
 
   def initialize(deck)
+    @name = set_name
     @hand = []
     @score = 0
     @deck = deck
@@ -246,9 +247,8 @@ class Participant
 end
 
 class Player < Participant
-  def initialize(deck)
-    @name = ask_open_question("What's your name?", DEALER_NAME)
-    super
+  def set_name
+    ask_open_question("What's your name?", DEALER_NAME)
   end
 
   def turn
@@ -265,9 +265,8 @@ class Player < Participant
 end
 
 class Dealer < Participant
-  def initialize(deck)
-    @name = DEALER_NAME
-    super
+  def set_name
+    DEALER_NAME
   end
 
   def turn
