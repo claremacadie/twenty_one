@@ -174,15 +174,24 @@ end
 
 module Hand
   BUST_VALUE = 21
+  ACE_VALUE_ALTERNATE = 10
+  ACE_VALUE_LIMIT = 11
 
   def total
-    value = 0
-    aces = hand.each_with_object([]) do |card, arr|
-      arr << 'Ace' if card.rank == 'Ace'
-      value += Deck::CARD_RANKS_AND_VALUES.fetch(card.rank)
+    value = total_with_aces_as_one
+    total_with_aces_as_alternate(value)
+  end
+
+  def total_with_aces_as_one
+    hand.reduce(0) do |sum, card|
+      sum += Deck::CARD_RANKS_AND_VALUES.fetch(card.rank)
     end
-    aces.each do
-      value += Deck::ACE_VALUE_ALTERNATE if value <= Deck::ACE_VALUE_LIMIT
+  end
+
+  def total_with_aces_as_alternate(value)
+    aces = hand.count { |card| card.rank == 'Ace' }
+    1.upto(aces) do
+      value += ACE_VALUE_ALTERNATE if value <= ACE_VALUE_LIMIT
     end
     value
   end
@@ -290,9 +299,6 @@ class Deck
     '2' => 2, '3' => 3, '4' => 4, '5' => 5, '6' => 6, '7' => 7, '8' => 8,
     '9' => 9, '10' => 10, 'Jack' => 10, 'Queen' => 10, 'King' => 10, 'Ace' => 1
   }
-
-  ACE_VALUE_ALTERNATE = 10
-  ACE_VALUE_LIMIT = 11
 
   attr_accessor :cards
 
