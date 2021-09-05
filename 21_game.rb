@@ -213,8 +213,8 @@ class Participant
   DEALER_NAME = "Alice"
   DEALER_STAY_VALUE = 17
 
-  attr_reader :name, :deck
-  attr_accessor :hand, :score, :bust
+  attr_reader :name
+  attr_accessor :score, :hand, :bust
 
   def initialize(deck)
     @name = set_name
@@ -246,6 +246,8 @@ class Participant
   end
 
   private
+
+  attr_reader :deck
 
   def hit
     hand << deck.deal_card
@@ -301,8 +303,6 @@ class Deck
   CARD_SUITS = [HEART, CLUB, DIAMOND, SPADE]
   CARD_RANKS = ('2'..'10').to_a + ['Jack', 'Queen', 'King', 'Ace']
 
-  attr_accessor :cards
-
   def initialize
     reset
   end
@@ -326,10 +326,14 @@ class Deck
     end
     cards.shuffle!
   end
+
+  private
+
+  attr_accessor :cards
 end
 
 class Card
-  attr_reader :rank, :suit
+  attr_reader :rank
 
   def initialize(rank, suit)
     @rank = rank
@@ -339,15 +343,16 @@ class Card
   def to_s
     "#{rank}#{suit}"
   end
+
+  private
+
+  attr_reader :suit
 end
 
 class Game
   include Displayable
 
   WINS_LIMIT = 5
-
-  attr_reader :player, :dealer
-  attr_accessor :deck, :winner, :champion
 
   def initialize
     clear
@@ -369,6 +374,9 @@ class Game
   end
 
   private
+
+  attr_reader :player, :dealer
+  attr_accessor :deck, :winner, :champion
 
   def main_game
     loop do
